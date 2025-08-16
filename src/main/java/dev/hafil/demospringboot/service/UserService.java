@@ -4,9 +4,7 @@ import dev.hafil.demospringboot.exception.ResourceNotFoundException;
 import dev.hafil.demospringboot.model.User;
 import dev.hafil.demospringboot.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

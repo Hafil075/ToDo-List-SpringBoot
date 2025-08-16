@@ -4,7 +4,6 @@ import dev.hafil.demospringboot.model.TodoTask;
 import dev.hafil.demospringboot.service.TodoTaskServices;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public class TodoTaskController {
     @Autowired
     private TodoTaskServices todoTaskServices;
 
-    @GetMapping("/")
+    @GetMapping
     public List<TodoTask> getAllTasks() {
         return todoTaskServices.findAll().getBody();
     }
