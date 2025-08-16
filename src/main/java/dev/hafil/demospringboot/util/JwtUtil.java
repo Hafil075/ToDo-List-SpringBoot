@@ -13,9 +13,8 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     private final String SECRET = "im curious to open but be careful it a lock fr something important";
-    private final int EXPIRATION = 1000*60*5;
+    private final int EXPIRATION = 1000 * 60 * 60; // 1hr validation
     private final Key secretKey = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
-
 
     public String generateToken(String username) {
         return Jwts.builder()
@@ -37,14 +36,28 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            extractUsername(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         }
-        catch (JwtException e) {
+        catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
 
-
-
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+            return expiration.before(new Date());
+        } catch (JwtException e) {
+            return true;
+        }
+    }
 }

@@ -4,7 +4,6 @@ import dev.hafil.demospringboot.exception.ResourceNotFoundException;
 import dev.hafil.demospringboot.model.TodoTask;
 import dev.hafil.demospringboot.repository.TodoTaskRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,51 +11,57 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@RequiredArgsConstructor
 public class TodoTaskServices {
-    private TodoTaskRepository todoTaskRepository;
-
-    private UserService userService;
+    private final TodoTaskRepository todoTaskRepository;
+    private final UserService userService;
 
     public ResponseEntity<List<TodoTask>> findAll() {
         List<TodoTask> tasks = todoTaskRepository.findAll();
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
-
     public TodoTask findById(Long id) {
-        return todoTaskRepository.findById(id).get();
+        return todoTaskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
     }
 
     public List<TodoTask> findAllByCreator(long creatorId) {
-        userService.findUserById(creatorId);
-        return todoTaskRepository.findByCreatedBy(creatorId).
-                orElseThrow(() -> new ResourceNotFoundException("No Task found"));
+        // Verify user exists
+        userService.findUserById(creatorId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + creatorId));
+
+        return todoTaskRepository.findByCreatedBy(creatorId)
+                .orElseThrow(() -> new ResourceNotFoundException("No tasks found for user: " + creatorId));
     }
 
-    public TodoTask add(long creatorId ,String task) {
-        userService.findUserById(creatorId);
+    public TodoTask add(long creatorId, String task) {
+        // Verify user exists
+        userService.findUserById(creatorId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + creatorId));
 
         TodoTask todoTask = new TodoTask();
         todoTask.setCreatedBy(creatorId);
         todoTask.setTaskName(task);
+        todoTask.setCompleted(false); // Set default value
 
         return todoTaskRepository.save(todoTask);
     }
 
     public TodoTask update(long id, TodoTask todoTask) {
-        TodoTask task = todoTaskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
-        task.setTaskName(todoTask.getTaskName());
-        task.setCompleted(todoTask.isCompleted());
-        return todoTaskRepository.save(task);
+        TodoTask existingTask = todoTaskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+
+        existingTask.setTaskName(todoTask.getTaskName());
+        existingTask.setCompleted(todoTask.isCompleted());
+        return todoTaskRepository.save(existingTask);
     }
 
     public ResponseEntity<Object> delete(long id) {
-        findById(id);
+        if (!todoTaskRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Task not found with id: " + id);
+        }
         todoTaskRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
-
-
 }

@@ -15,11 +15,13 @@ public class TodoTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private long createdBy;
+
+    @Column(nullable = false)
     private String taskName;
+
     @ColumnDefault("false")
-    private boolean isCompleted;
-
-
-
+    @Column(name = "is_completed")
+    private boolean completed;
 }
