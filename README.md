@@ -1,4 +1,4 @@
-# Todo List App SPRING
+# Todo List App Spring-Boot
 #### Learned
 * CRUD
 * JWT AUTH
