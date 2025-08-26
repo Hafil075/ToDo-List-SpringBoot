@@ -6,4 +6,3 @@
 
 #### To Be done
 * Todo List and User not Synced Yet
-* sIMPLE CHAGE
