@@ -16,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/tasks")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class TodoTaskController {
 
     private final TodoTaskServices todoTaskServices;
